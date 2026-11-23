@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const db = require('../models');
 const CustomError = require('../utils/CustomError');
+const { sendOtpEmail } = require('./email.service');
 const { OTP } = db;
 const { Op } = require('sequelize');
 
@@ -50,6 +51,11 @@ const createAndSendOTP = async ({ userId = null, identifier, type }) => {
   console.log(`Recipient: ${identifier}`);
   console.log(`OTP Code:  >>> ${rawOtp} <<< (Expires in 10 mins)`);
   console.log(`==============================================\n`);
+
+  // 5. Dispatch email via Nodemailer (if recipient is an email address)
+  if (identifier.includes('@')) {
+    await sendOtpEmail(identifier, rawOtp, type);
+  }
 
   return { rawOtp, expiresAt };
 };

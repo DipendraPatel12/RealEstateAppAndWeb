@@ -2,7 +2,7 @@ const http = require('http');
 const { app, server } = require('./server');
 
 const runTests = async () => {
-  const port = server.address().port;
+  const port = process.env.PORT || 5000;
   const BASE_URL = `http://127.0.0.1:${port}`;
   console.log('\n--- STARTING AUTOMATED REST API TESTS ON PORT', port, '---');
 
