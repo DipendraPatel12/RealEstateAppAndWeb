@@ -1,9 +1,6 @@
 const CustomError = require('../utils/CustomError');
 
-/**
- * Enforces role-based permissions
- * @param  {...string} allowedRoles - E.g. 'ADMIN', 'AGENT', 'BUYER'
- */
+
 const authorize = (...allowedRoles) => {
   return (req, res, next) => {
     if (!req.user) {

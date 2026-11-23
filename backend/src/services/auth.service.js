@@ -62,16 +62,35 @@ const register = async (data) => {
 };
 
 /**
+ * Helper to fetch only the relevant role profile based on user.role
+ */
+const getUserWithRoleProfile = async (user) => {
+  const safeUser = user.toSafeObject();
+
+  if (user.role === 'BUYER') {
+    const buyerProfile = await Buyer.findOne({
+      where: { userId: user.id },
+      include: [{ model: Country, as: 'exploringCountry' }]
+    });
+    return { ...safeUser, buyerProfile };
+  }
+
+  if (user.role === 'AGENT') {
+    const agentProfile = await AgentProfile.findOne({
+      where: { userId: user.id },
+      include: [{ model: AgentDocument, as: 'documents' }]
+    });
+    return { ...safeUser, agentProfile };
+  }
+
+  return safeUser;
+};
+
+/**
  * Verify registration OTP and activate account
  */
 const verifyOtp = async ({ email, otpCode, type, deviceInfo, ipAddress }) => {
-  const user = await User.findOne({
-    where: { email },
-    include: [
-      { model: Buyer, as: 'buyerProfile', include: [{ model: Country, as: 'exploringCountry' }] },
-      { model: AgentProfile, as: 'agentProfile', include: [{ model: AgentDocument, as: 'documents' }] }
-    ]
-  });
+  const user = await User.findOne({ where: { email } });
 
   if (!user) {
     throw new CustomError('User not found with this email', 404);
@@ -94,9 +113,10 @@ const verifyOtp = async ({ email, otpCode, type, deviceInfo, ipAddress }) => {
 
   // Generate tokens
   const tokens = await tokenService.generateAuthTokens(user, deviceInfo, ipAddress);
+  const userWithProfile = await getUserWithRoleProfile(user);
 
   return {
-    user: user.toSafeObject(),
+    user: userWithProfile,
     tokens
   };
 };
@@ -126,13 +146,7 @@ const resendOtp = async ({ email, type }) => {
  * User login
  */
 const login = async ({ email, password, deviceInfo, ipAddress }) => {
-  const user = await User.findOne({
-    where: { email },
-    include: [
-      { model: Buyer, as: 'buyerProfile', include: [{ model: Country, as: 'exploringCountry' }] },
-      { model: AgentProfile, as: 'agentProfile', include: [{ model: AgentDocument, as: 'documents' }] }
-    ]
-  });
+  const user = await User.findOne({ where: { email } });
 
   if (!user) {
     throw new CustomError('Invalid email or password', 401);
@@ -166,9 +180,10 @@ const login = async ({ email, password, deviceInfo, ipAddress }) => {
 
   // Generate tokens
   const tokens = await tokenService.generateAuthTokens(user, deviceInfo, ipAddress);
+  const userWithProfile = await getUserWithRoleProfile(user);
 
   return {
-    user: user.toSafeObject(),
+    user: userWithProfile,
     tokens
   };
 };
@@ -236,18 +251,13 @@ const resetPassword = async ({ email, otpCode, newPassword }) => {
  * Get current authenticated user profile
  */
 const getMe = async (userId) => {
-  const user = await User.findByPk(userId, {
-    include: [
-      { model: Buyer, as: 'buyerProfile', include: [{ model: Country, as: 'exploringCountry' }] },
-      { model: AgentProfile, as: 'agentProfile', include: [{ model: AgentDocument, as: 'documents' }] }
-    ]
-  });
+  const user = await User.findByPk(userId);
 
   if (!user) {
     throw new CustomError('User not found', 404);
   }
 
-  return user.toSafeObject();
+  return await getUserWithRoleProfile(user);
 };
 
 module.exports = {

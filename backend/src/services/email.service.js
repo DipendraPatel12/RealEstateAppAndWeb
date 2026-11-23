@@ -17,12 +17,6 @@ const createTransporter = () => {
   });
 };
 
-/**
- * Send branded HTML OTP email
- * @param {string} toEmail - Recipient email
- * @param {string} otpCode - 6-digit numeric code
- * @param {string} type - 'EMAIL_VERIFICATION' | 'PASSWORD_RESET'
- */
 const sendOtpEmail = async (toEmail, otpCode, type = 'EMAIL_VERIFICATION') => {
   const isReset = type === 'PASSWORD_RESET';
   const subject = isReset

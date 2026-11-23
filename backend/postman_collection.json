@@ -1,0 +1,432 @@
+{
+  "info": {
+    "_postman_id": "real-estate-api-v1",
+    "name": "Real Estate API - Auth, Buyer & Agent",
+    "description": "Complete Postman collection for Real Estate Auth flow, Buyer flow, and Agent onboarding & KYC.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "1.1 Register Buyer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"John Buyer\",\n  \"email\": \"buyer@example.com\",\n  \"phone_number\": \"+971501234567\",\n  \"password\": \"Password@123\",\n  \"confirmPassword\": \"Password@123\",\n  \"role\": \"BUYER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "1.2 Register Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Sarah Agent\",\n  \"email\": \"agent@example.com\",\n  \"phone_number\": \"+971559876543\",\n  \"password\": \"Password@123\",\n  \"confirmPassword\": \"Password@123\",\n  \"role\": \"AGENT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "1.3 Verify OTP (Auto-saves Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.tokens) {",
+                  "    pm.collectionVariables.set('accessToken', json.data.tokens.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', json.data.tokens.refreshToken);",
+                  "    console.log('Saved tokens to collection variables!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@example.com\",\n  \"otpCode\": \"123456\",\n  \"type\": \"EMAIL_VERIFICATION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "1.4 Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@example.com\",\n  \"type\": \"EMAIL_VERIFICATION\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/resend-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "resend-otp"]
+            }
+          }
+        },
+        {
+          "name": "1.5 Login (Auto-saves Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.tokens) {",
+                  "    pm.collectionVariables.set('accessToken', json.data.tokens.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', json.data.tokens.refreshToken);",
+                  "    console.log('Tokens saved successfully!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@example.com\",\n  \"password\": \"Password@123\",\n  \"deviceInfo\": \"Postman / Windows\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.6 Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.tokens) {",
+                  "    pm.collectionVariables.set('accessToken', json.data.tokens.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', json.data.tokens.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "1.7 Get Current User Profile (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "1.8 Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "1.9 Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"buyer@example.com\",\n  \"otpCode\": \"123456\",\n  \"newPassword\": \"NewPassword@123\",\n  \"confirmPassword\": \"NewPassword@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "1.10 Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Buyer Flow",
+      "item": [
+        {
+          "name": "2.1 Get Countries & Dial Codes (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/buyer/countries",
+              "host": ["{{baseUrl}}"],
+              "path": ["buyer", "countries"]
+            }
+          }
+        },
+        {
+          "name": "2.2 Select Exploring Country (Screen 3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"countryId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/buyer/country",
+              "host": ["{{baseUrl}}"],
+              "path": ["buyer", "country"]
+            }
+          }
+        },
+        {
+          "name": "2.3 Get Buyer Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/buyer/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["buyer", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Agent Onboarding & KYC",
+      "item": [
+        {
+          "name": "3.1 Get Agent Profile (Resume Step Check)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/agent/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent", "profile"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Save Professional Info (Step 2)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agencyName\": \"Skyline Realty LLC\",\n  \"roleType\": \"Individual\",\n  \"licenseNumber\": \"RERA-DXB-987654\",\n  \"experienceLevel\": \"3-5\",\n  \"location\": \"Dubai Marina, United Arab Emirates\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agent/professional-info",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent", "professional-info"]
+            }
+          }
+        },
+        {
+          "name": "3.3 Upload Government ID (Step 3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"Driving_License\",\n  \"fileName\": \"License_Certificate.pdf\",\n  \"fileUrl\": \"https://example.com/uploads/License_Certificate.pdf\",\n  \"fileSizeMb\": 4.54\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agent/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent", "documents"]
+            }
+          }
+        },
+        {
+          "name": "3.4 Upload Profile Photo (Step 3)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"Profile_Photo\",\n  \"fileName\": \"Profile.png\",\n  \"fileUrl\": \"https://example.com/uploads/Profile.png\",\n  \"fileSizeMb\": 2.10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agent/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent", "documents"]
+            }
+          }
+        },
+        {
+          "name": "3.5 Get Uploaded Documents",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/agent/documents",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent", "documents"]
+            }
+          }
+        },
+        {
+          "name": "3.6 Admin: Review KYC (Approve / Reject)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"kycStatus\": \"REJECTED\",\n  \"rejectionReason\": \"Document is blurry or unreadable\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/agent/review-kyc/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["agent", "review-kyc", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
